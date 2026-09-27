@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+# API muda para apps/v1 — Deployments fazem parte do grupo de API "apps"
+# já o Secrets, ConfigMaps e PVs que são "core" (v1)
+
+metadata:
+  name: postgres-deployment #nome do deployment
+
+spec:
+  replicas: 1  #Quantidade de Pods desejados rodando simultaneamente, 1
+
+  selector:
+    matchLabels:
+      app: postgres
+#diz ao Deployment quais Pods ele deve gerenciar (todos que tiverem a label app: postgres), isso precisa bater exatamente com o label definido no 'template' a seguir
+
+  template:  #o "molde" (template) usado para criar os Pods
+    metadata:
+      labels:
+        app: postgres    # é o 'selector' citado anteriormente
+
+    spec:
+      containers:
+        - name: postgres   # define o contêiner: nome interno 
+          image: postgres:15-alpine   # imagem oficial postgres:15-alpine (versão leve baseada em Alpine Linux)
+          ports:
+            - containerPort: 5432 # expondo a porta 5432 (porta padrão do PostgreSQL)
+
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: DB_NAME
+#Secrets é chamado, em vez de escrever a senha direto, o campo valueFrom.secretKeyRef busca o valor da chave POSTGRES_USER dentro do Secret db-secrets, criado no arquivo secrets.yaml e injeta como variável de ambiente POSTGRES_USER no contêiner. O mesmo padrão se repete para POSTGRES_PASSWORD
+
+
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data  #Monta um volume definido a seguir
+
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc  #define de onde vem esse volume: do PVC postgres-pvc criado no arquivo storage.yaml, q conecta o Pod ao armazenamento
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+# cria o Service postgres-service que é o nome que o ConfigMap (DB_HOST) referencia
+
+spec:
+  type: ClusterIP # significa que só é acessível de dentro do cluster (e não para a internet, correto para um BD)
+
+  selector:
+    app: postgres #diz ao Service para rotear tráfego para qualquer Pod com a label app: postgres, que foram os Pods criandos anteriormente
+
+  ports:
+    - port: 5432
+      targetPort: 5432
+# é a porta que o Service expõe
