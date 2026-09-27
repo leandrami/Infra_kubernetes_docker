@@ -11,7 +11,7 @@ spec:
     - ReadWriteOnce   #Define como o volume pode ser montado. RWO significa que apenas um nó do cluster pode montar esse volume para leitura/escrita por vez — modo típico para bancos de dados
   hostPath:
     path: "/mnt/data/postgres"   #define onde os dados serão gravados fisicamente(uma pasta no disco do proprio nó)
----        #separador indicando que abaixo começa um segundo objeto
+---     #separador indicando que abaixo começa um segundo objeto
 apiVersion: v1
 kind: PersistentVolumeClaim 
 metadata:
