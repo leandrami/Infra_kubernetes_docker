@@ -4,6 +4,8 @@ metadata:
   name: api-deployment
 spec:
   replicas: 3
+#diferença chave: aqui são 3 réplicas, não 1, pois a API é stateless, q não guarda dados localmente
+
   selector:
     matchLabels:
       app: minha-api
@@ -11,15 +13,20 @@ spec:
     metadata:
       labels:
         app: minha-api
+
+
     spec:
       containers:
         - name: api
           image: minha-api:latest
           ports:
             - containerPort: 8080
+#contêiner da API, usando a imagem minha-api:latest
+
           envFrom:
-            - configMapRef:
+            - configMapRef:  #importa todas as chaves do ConfigMap api-config de uma vez
                 name: api-config
+
           env:
             - name: DB_USER
               valueFrom:
@@ -31,6 +38,8 @@ spec:
                 secretKeyRef:
                   name: db-secrets
                   key: POSTGRES_PASSWORD
+#credenciais do Secret são injetadas individualmente
+
 ---
 apiVersion: v1
 kind: Service
@@ -38,8 +47,11 @@ metadata:
   name: api-service
 spec:
   type: LoadBalancer
+# solicita ao provedor de nuvem (AWS, GCP, Azure) um IP público real
+
   selector:
     app: minha-api
   ports:
     - port: 80
       targetPort: 8080
+#Roteia tráfego para Pods com label app: minha-api
