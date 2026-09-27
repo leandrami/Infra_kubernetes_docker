@@ -37,6 +37,11 @@ spec:
                 secretKeyRef:
                   name: db-secrets
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: DB_NAME
 #Secrets é chamado, em vez de escrever a senha direto, o campo valueFrom.secretKeyRef busca o valor da chave POSTGRES_USER dentro do Secret db-secrets, criado no arquivo secrets.yaml e injeta como variável de ambiente POSTGRES_USER no contêiner. O mesmo padrão se repete para POSTGRES_PASSWORD
 
 

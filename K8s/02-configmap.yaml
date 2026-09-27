@@ -7,6 +7,6 @@ metadata:
 data:   #Pares chave-valor em texto puro (sem base64, diferente do Secret)
   DB_HOST: "postgres-service"
   DB_PORT: "5432"
-  DB_NAME: "meubanco"
+  DB_NAME: "api_database"
   API_PORT: "8080"
   ENVIRONMENT: "production"

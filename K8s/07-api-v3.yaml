@@ -16,7 +16,7 @@ spec:
         - name: api-v3
           image: minha-api-v3:latest
           ports:
-            - containerPort: 8082
+            - containerPort: 3000
           envFrom:
             - configMapRef:
                 name: api-config
@@ -28,7 +28,7 @@ spec:
                 secretKeyRef:
                   name: db-secrets
                   key: POSTGRES_USER
-            - name: DB_PASS
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: db-secrets
@@ -44,4 +44,4 @@ spec:
     app: minha-api-v3
   ports:
     - port: 8082
-      targetPort: 8082
+      targetPort: 3000

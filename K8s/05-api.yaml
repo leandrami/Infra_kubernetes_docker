@@ -20,7 +20,7 @@ spec:
         - name: api
           image: minha-api:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 3000
 #contêiner da API, usando a imagem minha-api:latest
 
           envFrom:
@@ -33,7 +33,7 @@ spec:
                 secretKeyRef:
                   name: db-secrets
                   key: POSTGRES_USER
-            - name: DB_PASS
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: db-secrets
@@ -53,5 +53,5 @@ spec:
     app: minha-api
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: 3000
 #Roteia tráfego para Pods com label app: minha-api
